@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Cerberus</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+        background-color: #555555;
+    }
+</style>
+</head>
+<body>
+<h1>You're talking to the {{ {"web1": "left", "web2": "middle", "web3": "right"}[inventory_hostname] | default("unknown") }} head of Cerberus!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working.</p>
+
+<img src=cerberus.png align="middle" width=512 height=346>
+
+</body>
+</html>

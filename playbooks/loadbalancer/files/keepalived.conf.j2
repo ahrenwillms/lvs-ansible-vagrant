@@ -1,0 +1,76 @@
+# Common Configuration Block
+global_defs {
+    notification_email {
+        ahren.willms@mac.com
+    }
+    notification_email_from lb1@example.com
+    smtp_server mail.example.com
+    smtp_connect_timeout 30
+    router_id lb1.example.com
+}
+ 
+# Master Configuration Block
+vrrp_instance VI_1 {
+    state MASTER
+    interface {{ network_interface }}
+    virtual_router_id 1
+    priority 101
+    nopreempt
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass keep_out!
+    }
+    virtual_ipaddress {
+        {{ vip_address }}/24 dev {{ network_interface }}
+    }
+}
+ 
+# Virtual Server Configuration Block
+virtual_server {{ vip_address }} {{ nginx_port }} {
+    delay_loop 6
+    lvs_sched rr
+    lvs_method DR
+    persistence_timeout 50
+    protocol TCP
+    # sorry_server 10.0.0.254 80
+    real_server 192.168.60.201 {{ nginx_port }} {
+        weight 1
+        inhibit_on_failure
+        HTTP_GET {
+            url {
+                path /
+                status_code 200
+            }
+            connect_timeout 3
+            nb_get_retry 3
+            delay_before_retry 3
+        }
+    }
+    real_server 192.168.60.202 {{ nginx_port }} {
+        weight 1
+        inhibit_on_failure
+        HTTP_GET {
+            url {
+                path /
+                status_code 200
+            }
+            connect_timeout 3
+            nb_get_retry 3
+            delay_before_retry 3
+        }
+    }
+    real_server 192.168.60.203 {{ nginx_port }} {
+        weight 1
+        inhibit_on_failure
+        HTTP_GET {
+            url {
+                path /
+                status_code 200
+            }
+            connect_timeout 3
+            nb_get_retry 3
+            delay_before_retry 3
+        }
+    }
+}

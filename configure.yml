@@ -1,0 +1,4 @@
+---
+- import_playbook: playbooks/loadbalancer/main.yml
+- import_playbook: playbooks/nginx/main.yml
+

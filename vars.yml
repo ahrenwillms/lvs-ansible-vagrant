@@ -1,0 +1,4 @@
+---
+nginx_port: 8080
+vip_address: 192.168.60.60
+network_interface: "enp0s8"

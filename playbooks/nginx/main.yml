@@ -1,0 +1,57 @@
+---
+
+- name: Configure web servers
+  hosts: web_servers
+  become: true
+
+  vars_files:
+    ../../vars.yml
+
+  tasks:
+  - name: Run apt-get update
+    apt:
+      update-cache: true
+      cache_valid_time: 3600
+
+  - name: Install nginx
+    apt:
+      name: nginx
+      state: present
+      
+  - name: Copy index.nginx-debian.html file
+    template:
+      src: files/index.nginx-debian.html.j2
+      dest: /var/www/html/index.nginx-debian.html
+      owner: root
+      group: root
+      mode: '0644'
+    register: index_html
+
+  - name: Copy cerberus.png file
+    copy:
+      src: files/cerberus.png
+      dest: /var/www/html/cerberus.png
+      owner: root
+      group: root
+      mode: '0644'
+    register: cerberus_png
+
+  - name: Copy nginx.conf file
+    template:
+      src: files/nginx.conf.j2
+      dest: /etc/nginx/sites-enabled/default
+      owner: root
+      group: root
+      mode: '0644'
+    register: nginx_conf
+
+  - name: Restart nginx service if needed                 
+    service:
+      name: nginx
+      state: restarted
+    when: (index_html.changed) or (cerberus_png.changed) or (nginx_conf.changed)
+
+  - name: Add iptables rule for direct server return
+    command: "iptables -t nat -A PREROUTING -d {{ vip_address }} -j REDIRECT"
+
+

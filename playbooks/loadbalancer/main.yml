@@ -1,0 +1,54 @@
+---
+
+- name: Configure load balancer
+  hosts: load_balancer
+  become: true
+
+  vars_files:
+    ../../vars.yml
+
+  tasks:
+  - name: Run apt-get update
+    apt:
+      update-cache: true
+      cache_valid_time: 3600
+
+  - name: Install ipvsadm
+    apt:
+      name: ipvsadm
+      state: present
+
+  - name: Install keepalived
+    apt:
+      name: keepalived
+      state: present
+
+  - name: Copy ipvsadm configuration file
+    template:
+      src: files/ipvsadm.j2
+      dest: /etc/default/ipvsadm
+      owner: root
+      group: root
+      mode: '0644'
+    register: ipvsadm_config    
+  
+  - name: Copy keepalive.conf file
+    template:
+      src: files/keepalived.conf.j2
+      dest: /etc/keepalived/keepalived.conf
+      owner: root
+      group: root
+      mode: '0644'
+    register: keepalived_config
+
+  - name: Restart ipvsadm service if needed
+    service:
+      name: ipvsadm
+      state: restarted
+    when: ipvsadm_config.changed
+
+  - name: Restart keepalived service if nedded                   
+    service:
+      name: keepalived
+      state: restarted
+    when: keepalived_config.changed
